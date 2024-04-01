@@ -2,18 +2,26 @@ package com.example.tugasday_6;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private ParfumAdapter parfumAdapter;
+//    private ParfumAdapter parfumAdapter;
+
+    RecyclerView.Adapter recyclerViewAdapter;
+
+    RecyclerView.LayoutManager recyclerViewLayoutManager;
     private ArrayList<ParfumModel> parfumModel;
+
+    private ParfumAdapter.RecyclerViewClickListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,27 +32,30 @@ public class MainActivity extends AppCompatActivity {
         getData();
 
         recyclerView = findViewById(R.id.parfum);
-        parfumAdapter = new ParfumAdapter(parfumModel);
+        recyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(parfumAdapter);
+        recyclerViewLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(recyclerViewLayoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        parfumAdapter.setOnItemClickListener(new ParfumAdapter.OnItemClickListener(){
+        setOnClickListener();
+        recyclerViewAdapter = new ParfumAdapter(this, parfumModel,listener);
+        recyclerView.setAdapter(recyclerViewAdapter);
+
+    }
+
+    private void setOnClickListener(){
+        listener = new ParfumAdapter.RecyclerViewClickListener(){
             @Override
-            public void onItemClick(ParfumModel model){
-
+            public void onClick(View v, int position) {
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra("namabarang", model.getNamaParfum());
-                intent.putExtra("deskripsibarang", getDeskripsi(model.getNamaParfum()));
-                intent.putExtra("hargabarang", getHarga(model.getNamaParfum()));
-                intent.putExtra("gambarbarang", model.getGambarParfum());
+                intent.putExtra("namabarang", parfumModel.get(position).getNamaParfum());
+                intent.putExtra("deskripsibarang", getDeskripsi(parfumModel.get(position).getNamaParfum()));
+                intent.putExtra("hargabarang", getHarga(parfumModel.get(position).getNamaParfum()));
+                intent.putExtra("gambarbarang",parfumModel.get(position).getGambarParfum());
                 startActivity(intent);
-
-
             }
-        });
-
+        };
     }
 
     private void getData() {
